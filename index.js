@@ -3,8 +3,7 @@ const fs= require('fs');
 const Manager= require('./lib/Manager');
 const Engineer= require('./lib/Engineer');
 const Intern=require('./lib/Intern');
-const { off } = require('process');
-
+const generateHTML = require('./src/generateHTML');
 
 const ArrayOfTeamMembers=[];
 
@@ -39,7 +38,7 @@ const addManager=()=>{
     {
         type: 'input',
         name: 'email',
-        message: 'What is your name?',
+        message: 'What is your email?',
         validate: email => {
             if(email){
                 return true;
@@ -62,8 +61,8 @@ const addManager=()=>{
                 return false
             }
         }
-    }]).then(managerPrompt=>{
-        const {name,id,email,officeNumber}= managerprompt;
+    }]).then(managerPrompt =>{
+        const {name,id,email,officeNumber}= managerPrompt;
 
         let manager= new Manager (name, id, email, officeNumber);
 
@@ -120,7 +119,7 @@ const employeeOption= ()=>{
         {
             type: 'input',
             name: 'email',
-            message: 'What is your name?',
+            message: 'What is your email?',
             validate: email => {
                 if(email){
                     return true;
@@ -135,33 +134,29 @@ const employeeOption= ()=>{
             type: 'input',
             name: 'githubUsername',
             message: 'What is your git hub username?',
-            validate: input=>{if(input.employeeOptions === "Engineer" ){
-                githubUsername => {
+            when: input => input.employeeOptions === "Engineer",
+            validate: githubUsername => {
                     if(githubUsername){
                         return true;
                     }else{
                         console.log( "Enter your github Username");
                         return false
                     }
-            }} 
-            }
-        },
+            }},
 
         {
             type: 'input',
             name: 'schoolName',
             message: 'What is your school name?',
-            validate: input=>{if(input.employeeOptions === "Intern" ){
-                schoolName => {
+            when: input => input.employeeOptions==="Intern",
+            validate: schoolName => {
                     if(schoolName){
                         return true;
                     }else{
                         console.log( "Enter your school name");
                         return false
                     }
-            }} 
-            }
-        },
+            }} ,
 
         {
             type: 'confirm',
@@ -190,3 +185,25 @@ const employeeOption= ()=>{
         }
     })
 }
+
+const writeFile= data=>{
+    fs.writeFile("./dist/index.html",data,err=>{
+        if (err){
+            console.log(err);
+        }else {
+            console.log("Your team profile is generated successfully")
+        }
+    })
+}
+
+addManager()
+.then(employeeOption)
+.then(ArrayOfTeamMembers => {
+    return generateHTML(ArrayOfTeamMembers);
+  })
+  .then(pageHTML => {
+    return writeFile(pageHTML);
+  })
+.catch(err =>{
+    console.log(err);
+});
