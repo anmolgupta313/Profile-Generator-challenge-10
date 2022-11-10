@@ -67,7 +67,6 @@ const addManager=()=>{
         let manager= new Manager (name, id, email, officeNumber);
 
         ArrayOfTeamMembers.push(manager);
-        console.log(ArrayOfTeamMembers);
     })
 
 }
